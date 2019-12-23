@@ -3,11 +3,9 @@ import datetime as dt
 import pandas as pd
 import re
 from textblob import TextBlob
-import tabulate
-
+import webbrowser
 
 def get_tweets(query, num_tweets, begin_date=dt.date(2019, 12, 20), end_date=dt.date.today()):
-    
     limit = num_tweets
     lang = "english"
     
@@ -48,7 +46,7 @@ def get_tweet_sentiment(tweets):
             nut_df['Polarity'].append(blob.sentiment.polarity)
             nut_df['Subjectivity'].append(blob.sentiment.subjectivity)
             
-    print("{:.2%} analyzed tweets had a negative sentiment".format(neg_opinions / num_opinions))
+    print("\n{:.2%} analyzed tweets had a negative sentiment".format(neg_opinions / num_opinions))
     print("{:.2%} analyzed tweets had a positive sentiment".format(pos_opinions / num_opinions))
     
     pd.set_option('display.max_colwidth', -1)
@@ -65,8 +63,8 @@ Results\nP = View Positive Tweet Results\nU = View Uncatagorized Tweets\nE = Exi
             df = pd.DataFrame(neg_df)
         elif choose.upper() == 'U':
             df = pd.DataFrame(nut_df)
-        print(tabulate([list(row) for row in df.values], headers=list(df.columns), tablefmt='psql'))
-            
+        df.to_html('temp.html')
+        webbrowser.open_new_tab('temp.html')
 
 
 def main():
@@ -76,7 +74,8 @@ def main():
     if custom_dates.lower() == "y":
         start = input("Enter a start date (mm-dd-yyyy): ")
         end = input("Enter an end date (mm-dd-yyyy): ")
-        dirty_tweets = get_tweets(query, num_tweets, start, end)
+        dirty_tweets = get_tweets(query, num_tweets, dt.datetime.strptime(start, 
+'%m-%d-%Y'), dt.datetime.strptime(end, '%m-%d-%Y'))
     else:    
         dirty_tweets = get_tweets(query, num_tweets)
     
